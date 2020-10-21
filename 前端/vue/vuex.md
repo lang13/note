@@ -64,13 +64,13 @@ export default new Vuex.Store({
 });
 ```
 
-#### 5.在store文件夹下面新建文件夹modules放入user模块，类似于java中的类
+#### 5.在store文件夹下面新建文件夹modules放入user（模块名）模块，类似于java中的类
 
 > state、getters、mutations、actions是关键字
 >
 > > state：包含了store中存储的各个状态
 > >
-> > getters：类似于Vue中的计算属性，用于获取state中的数据
+> > getters：类似于Vue中的计算属性，用于获取state中的数据（即使是不同的模块，getters里的方法的名字也不能相同）
 > >
 > > mutations：用于改变state中的属性的方法（同步执行的）
 > >
@@ -108,3 +108,26 @@ const user = {
 export default user;
 ```
 
+#### 6.读写数据
+
+```js
+读取数据：{{ $store.getters.getUser.username }} {{ this.$store.state.user }}
+写入数据：
+//dispatch调用的是actions里面的方法
+this.$store.dispatch("asyncUpdateUser", {
+	username: this.form.username,
+    token: "this is token"
+})      
+```
+
+#### 7.什么时候使用Vuex
+
+> **什么样的应用场景下需要 vuex ？**如果不打算开发大型单页应用，使用 Vuex 可能是繁琐冗余的。确实是如此——如果你的应用够简单，那最好不要使用 Vuex。一个简单的 global event bus 就足够所需了。但是，如果需要构建是一个中大型单页应用，很可能会考虑如何更好地在组件外部管理状态，Vuex 将会成为自然而然的选择。
+>
+> vuex 一般用于中大型 web 单页应用中对应用的状态进行管理，对于一些组件间关系较为简单的小型应用，使用 vuex 的必要性不是很大，因为完全可以用组件 prop 属性或者事件来完成父子组件之间的通信，**vuex 更多地用于解决跨组件通信以及作为数据中心集中式存储数据。**
+>
+> **使用 vuex 解决跨组件通信问题**
+> 跨组件通信一般指非父子组件间的通信，父子组件的通信一般可以通过以下方式：
+> **1、通过 prop 属性实现父组件向子组件传递数据**
+> **2、通过在子组件中触发事件实现向父组件传递数据**
+> 非父子组件之间的通信一般通过一个空的 Vue 实例作为 中转站，也可以称之为 事件中心、event bus。
