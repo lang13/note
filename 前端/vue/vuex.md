@@ -22,9 +22,11 @@ Vue.use(Vuex)
 
 * 使用到路由钩子函数**beforeEach**路由跳转前调用的方法，（真跳转前）
 
-> **此方法卸载入口函数Main里面**
+> **此方法写在入口函数Main里面**
 
 ```js
+import router from './router'
+
 //sessionStorage 用于临时保存同一窗口(或标签页)的数据，在关闭窗口或标签页之后将会删除这些数据
 router.beforeEach((to, from, next) => {  
   //属性：key-value，两个都是String属性
