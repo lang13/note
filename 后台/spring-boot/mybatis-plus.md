@@ -19,6 +19,8 @@ Spring Boot Starter 父工程
 
 引入 `spring-boot-starter`、`spring-boot-starter-test`、`mybatis-plus-boot-starter`、`lombok`、`h2` 依赖：
 
+**引入 `MyBatis-Plus` 之后请不要再次引入 `MyBatis` 以及 `MyBatis-Spring`，以避免因版本差异导致的问题。**
+
 ```xml
 <dependencies>
     <dependency>
@@ -105,3 +107,4 @@ public interface UserMapper extends BaseMapper<User> {
 public class MybatisPlusApplication {
 ```
 
+修
