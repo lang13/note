@@ -128,6 +128,26 @@ map放的是**where name = "张三" and age = 20**
         System.out.println(users);
     }
 ```
+###### 2.条件构造器（Wrapper）
+
+###### 1.多条件查询
+
+```java
+void contextLoads(){
+    //查询name和邮箱不为空的用户,且年龄>=20岁的
+    QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+    //名字不为空
+    queryWrapper.isNotNull("name")
+        //邮箱不为空
+        .isNotNull("email")
+        //年龄大于等于20岁
+        .ge("age", 21);
+    List<User> users = userMapper.selectList(queryWrapper);
+    System.out.println(users);
+}
+```
+
+
 
 ##### 3.分页查询
 
@@ -163,7 +183,41 @@ void testPaginationInnerInterceptor(){
 }
 ```
 
+##### 4.逻辑删除
 
+###### 1.配置文件
+
+```yml
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field: (逻辑删除的字段名)  # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)
+      logic-delete-value: 1 # 逻辑已删除值(默认为 1)
+      logic-not-delete-value: 0 # 逻辑未删除值(默认为 0)
+```
+
+###### 2.在**entity**类中加上字段
+
+```java
+//    @TableLogic
+//新版本在配置了logic-delete-field:后就不需要加@TableLogic标签
+private int deleted;
+```
+
+###### 3.删除代码
+
+```java
+@Test
+void testLogic(){
+//   userMapper.deleteById(1L);
+    User user = userMapper.selectById(1L);
+    System.out.println(user);
+}
+```
+
+###### 4.注意
+
+**逻辑删除并不会修改`Version`字段的值**
 
 ****
 #### 5.代码生成器
@@ -303,3 +357,4 @@ private Integer version;
 ```
 
 ****
+
