@@ -130,9 +130,8 @@ map放的是**where name = "张三" and age = 20**
 ```
 ###### 2.条件构造器（Wrapper）
 
-###### 1.多条件查询
-
 ```java
+/**不为空, >=*/
 void contextLoads(){
     //查询name和邮箱不为空的用户,且年龄>=20岁的
     QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -141,10 +140,116 @@ void contextLoads(){
         //邮箱不为空
         .isNotNull("email")
         //年龄大于等于20岁
-        .ge("age", 21);
+        .ge("age", 21);	  //Greater than or equal to
     List<User> users = userMapper.selectList(queryWrapper);
     System.out.println(users);
 }
+
+/**单字段匹配, 查询一个*/
+@Test
+void testSelectOne(){
+    QueryWrapper<User> wrapper = new QueryWrapper<>();
+    //名字为 张三
+    wrapper.eq("name", "张三");	//equal
+    User user = userMapper.selectOne(wrapper);
+
+    System.out.println(user);
+}
+
+/** 区间查询*/
+@Test
+void selectBetween(){
+    QueryWrapper wrapper = new QueryWrapper();
+    //年龄在18~20之间(18 < x <= 20)
+    wrapper.between("age", 17, 19);
+    Integer integer = userMapper.selectCount(wrapper);
+    List list = userMapper.selectList(wrapper);
+
+    System.out.println(integer);
+    System.out.println(list);
+}
+
+/** 模糊查询 */
+@Test
+void testLike(){
+    QueryWrapper<User> wrapper = new QueryWrapper<>();
+    //模糊查询
+    //左右表示 % 在左还是在右
+    wrapper.likeLeft("name", "3");
+
+    List list = userMapper.selectMaps(wrapper);
+    System.out.println(list);
+}
+
+/** 连接查询 */
+@Test
+void testInternal() {
+    QueryWrapper<User> wrapper = new QueryWrapper<>();
+    //内查询
+    //id在子查询中查询出来的
+    wrapper.inSql("id", "select id from user where id < 3");
+
+    List<Object> objects = userMapper.selectObjs(wrapper);
+    for (Object obj : objects) {
+        System.out.println(obj);
+    }
+}
+```
+
+* 常用条件
+
+```java
+【通用条件：】
+【比较大小： ( =, <>, >, >=, <, <= )】
+    eq(R column, Object val); // 等价于 =，例: eq("name", "老王") ---> name = '老王'
+    ne(R column, Object val); // 等价于 <>，例: ne("name", "老王") ---> name <> '老王'
+    gt(R column, Object val); // 等价于 >，例: gt("name", "老王") ---> name > '老王'
+    ge(R column, Object val); // 等价于 >=，例: ge("name", "老王") ---> name >= '老王'
+    lt(R column, Object val); // 等价于 <，例: lt("name", "老王") ---> name < '老王'
+    le(R column, Object val); // 等价于 <=，例: le("name", "老王") ---> name <= '老王'
+    
+【范围：（between、not between、in、not in）】
+   between(R column, Object val1, Object val2); // 等价于 between a and b, 例： between("age", 18, 30) ---> age between 18 and 30
+   notBetween(R column, Object val1, Object val2); // 等价于 not between a and b, 例： notBetween("age", 18, 30) ---> age not between 18 and 30
+   in(R column, Object... values); // 等价于 字段 IN (v0, v1, ...),例: in("age",{1,2,3}) ---> age in (1,2,3)
+   notIn(R column, Object... values); // 等价于 字段 NOT IN (v0, v1, ...), 例: notIn("age",{1,2,3}) ---> age not in (1,2,3)
+   inSql(R column, Object... values); // 等价于 字段 IN (sql 语句), 例: inSql("id", "select id from table where id < 3") ---> id in (select id from table where id < 3)
+   notInSql(R column, Object... values); // 等价于 字段 NOT IN (sql 语句)
+   
+【模糊匹配：（like）】
+    like(R column, Object val); // 等价于 LIKE '%值%'，例: like("name", "王") ---> name like '%王%'
+    notLike(R column, Object val); // 等价于 NOT LIKE '%值%'，例: notLike("name", "王") ---> name not like '%王%'
+    likeLeft(R column, Object val); // 等价于 LIKE '%值'，例: likeLeft("name", "王") ---> name like '%王'
+    likeRight(R column, Object val); // 等价于 LIKE '值%'，例: likeRight("name", "王") ---> name like '王%'
+    
+【空值比较：（isNull、isNotNull）】
+    isNull(R column); // 等价于 IS NULL，例: isNull("name") ---> name is null
+    isNotNull(R column); // 等价于 IS NOT NULL，例: isNotNull("name") ---> name is not null
+
+【分组、排序：（group、having、order）】
+    groupBy(R... columns); // 等价于 GROUP BY 字段, ...， 例: groupBy("id", "name") ---> group by id,name
+    orderByAsc(R... columns); // 等价于 ORDER BY 字段, ... ASC， 例: orderByAsc("id", "name") ---> order by id ASC,name ASC
+    orderByDesc(R... columns); // 等价于 ORDER BY 字段, ... DESC， 例: orderByDesc("id", "name") ---> order by id DESC,name DESC
+    having(String sqlHaving, Object... params); // 等价于 HAVING ( sql语句 )， 例: having("sum(age) > {0}", 11) ---> having sum(age) > 11
+
+【拼接、嵌套 sql：（or、and、nested、apply）】
+   or(); // 等价于 a or b， 例：eq("id",1).or().eq("name","老王") ---> id = 1 or name = '老王'
+   or(Consumer<Param> consumer); // 等价于 or(a or/and b)，or 嵌套。例: or(i -> i.eq("name", "李白").ne("status", "活着")) ---> or (name = '李白' and status <> '活着')
+   and(Consumer<Param> consumer); // 等价于 and(a or/and b)，and 嵌套。例: and(i -> i.eq("name", "李白").ne("status", "活着")) ---> and (name = '李白' and status <> '活着')
+   nested(Consumer<Param> consumer); // 等价于 (a or/and b)，普通嵌套。例: nested(i -> i.eq("name", "李白").ne("status", "活着")) ---> (name = '李白' and status <> '活着')
+   apply(String applySql, Object... params); // 拼接sql（若不使用 params 参数，可能存在 sql 注入），例: apply("date_format(dateColumn,'%Y-%m-%d') = {0}", "2008-08-08") ---> date_format(dateColumn,'%Y-%m-%d') = '2008-08-08'")
+   last(String lastSql); // 无视优化规则直接拼接到 sql 的最后，可能存若在 sql 注入。
+   exists(String existsSql); // 拼接 exists 语句。例: exists("select id from table where age = 1") ---> exists (select id from table where age = 1)
+   
+【QueryWrapper 条件：】
+    select(String... sqlSelect); // 用于定义需要返回的字段。例： select("id", "name", "age") ---> select id, name, age
+    select(Predicate<TableFieldInfo> predicate); // Lambda 表达式，过滤需要的字段。
+    lambda(); // 返回一个 LambdaQueryWrapper
+    
+【UpdateWrapper 条件：】
+    set(String column, Object val); // 用于设置 set 字段值。例: set("name", null) ---> set name = null
+    etSql(String sql); // 用于设置 set 字段值。例: setSql("name = '老李头'") ---> set name = '老李头'
+    lambda(); // 返回一个 LambdaUpdateWrapper 
 ```
 
 
@@ -175,7 +280,7 @@ public ConfigurationCustomizer configurationCustomizer() {
 ```java
 @Test
 void testPaginationInnerInterceptor(){
-    //查询第一页,且需要5个数据
+    //查询第五页,且需要5个数据
     Page<User> userPage = new Page<>(5,5);
     userMapper.selectPage(userPage, null);
     userPage.getRecords().forEach(System.out::println);
