@@ -14,7 +14,7 @@ Spring Boot Starter 父工程
     <relativePath/>
 </parent>
 ```
-
+****
 #### 2.引入依赖
 
 引入 `spring-boot-starter`、`spring-boot-starter-test`、`mybatis-plus-boot-starter`、`lombok`、`h2` 依赖：
@@ -51,7 +51,7 @@ Spring Boot Starter 父工程
     </dependency>
 </dependencies>
 ```
-
+****
 #### 3.配置文件
 
 ```yml
@@ -64,7 +64,7 @@ spring:
     username: root
     password: 13068298041tzc
 ```
-
+****
 #### 4.编码
 
 ##### 1.基础使用
@@ -82,6 +82,9 @@ public class User {
     private String name;
     private Integer age;
     private String email;
+    private Date createTime;
+//    @TableField(fill = FieldFill.INSERT_UPDATE) 插入或者更新数据时修改时间
+    private Date updateTime;
 }
 ```
 
@@ -93,6 +96,7 @@ package com.learn.mybatisplus.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.learn.mybatisplus.entity.User;
 
+@Repository
 public interface UserMapper extends BaseMapper<User> {
 	//BaseMapper里面封装了基础的CURD操作    
 }
@@ -103,10 +107,65 @@ public interface UserMapper extends BaseMapper<User> {
 ```java
 @SpringBootApplication
 //注释里面的包名必须是完整的
-@MapperScan("com/learn/mybatisplus/mapper")
+@MapperScan("com.learn.mybatisplus.mapper")
 public class MybatisPlusApplication {
 ```
+##### 2.条件查询
 
+###### 1. map
+
+map放的是**where name = "张三" and age = 20**
+
+```java
+ @Test
+    void testSelectByMap() {
+        Map<String, Object> map = new HashMap();
+        //多条件查询
+        map.put("name", "张三");
+        map.put("age", 20);
+
+        List<User> users = userMapper.selectByMap(map);
+        System.out.println(users);
+    }
+```
+
+##### 3.分页查询
+
+###### 1.配置分页拦截器
+
+```java
+@Bean
+public MybatisPlusInterceptor mybatisPlusInterceptor() {
+    MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+    //分页插件
+    interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
+    return interceptor;
+}
+/**
+  * 新的分页插件,一缓和二缓遵循mybatis的规则,需要设置 MybatisConfiguration#useDeprecatedExecutor = false 避免缓存出现   * 问题
+  */
+@Bean
+public ConfigurationCustomizer configurationCustomizer() {
+    return configuration -> configuration.setUseDeprecatedExecutor(false);
+}
+```
+
+###### 2.分页查询代码
+
+```java
+@Test
+void testPaginationInnerInterceptor(){
+    //查询第一页,且需要5个数据
+    Page<User> userPage = new Page<>(5,5);
+    userMapper.selectPage(userPage, null);
+    userPage.getRecords().forEach(System.out::println);
+    System.out.println(userPage.getTotal());
+}
+```
+
+
+
+****
 #### 5.代码生成器
 
 ##### 1.依赖
@@ -202,4 +261,45 @@ public class MybatisPlusApplication {
 
         ag.execute();
 ```
+****
+#### 6.配置日志
 
+> 所有的SQL现在是不可见的，我们希望知道它是怎么执行的，所以需要及配置日志功能
+
+```yml
+# 配置日志
+mybatis-plus:
+  configuration:    #控制台输出
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+```
+***
+#### 7.乐观锁
+
+添加**config**配置
+
+> 在MyBatis-Plus3.4.0版本，OptimisticLockerInterceptor已被弃置使用，但不添加会**报错**，看后续更新
+
+```java
+@Configuration
+@EnableTransactionManagement
+//@MapperScan("com.learn.mybatis_plus.generator.mapper")
+public class MyBatisPlusConfig {
+    //配置乐观锁
+  	@Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        //乐观锁
+        interceptor.addInnerInterceptor(new OptimisticLockerInnerInterceptor());
+        return interceptor;
+    }
+}
+```
+
+新建一个**version**字段，并且加上**@Version**字段
+
+```java
+@Version //乐观锁注解
+private Integer version;
+```
+
+****
