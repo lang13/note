@@ -213,8 +213,35 @@ docker build -t myshop .
 ```
 
 > 这里的`.`表示上下文路径
+>
+> `.`制定Dockerfile的上下文目录并打包 -> Docker Server。所以docker`找不到`当前目录的上一级目录
+
+##### Dockerfile
+
+```dockerfile
+FROM tomcat:latest
+
+# 执行删除命令
+RUN rm -f /usr/local/tomcat/webappps/ROOT/*
+
+# 复制到制定目录
+COPY myshop.tar.gz /usr/local/tomcat/webappps/ROOT/
+
+# 指定工作目录
+WORKDIR /usr/local/tomcat/webapps/ROOT/
+
+# 解压并且删除
+RUN tar -zxvf myshop.tar.gz \
+	&& rm -fr myshop.tar.gz
+```
 
 #### 6.虚悬镜像
+
+##### 删除徐悬镜像
+
+```sh
+docker image prune
+```
 
 #### 7.中间层镜像
 
