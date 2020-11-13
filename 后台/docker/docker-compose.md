@@ -4,6 +4,7 @@
 
 ```sh
 # 下载二进制文件
+# 自己修改版本号
 sudo curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 
 # 将文件提权至可执行文件
@@ -45,7 +46,7 @@ docker rm -f mysql
 ```sh
 # 数据卷还没数据时，需要初始化登录密码
 docker run -p 3305:3306 --name mysql \
--v /usr/local/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf \
+-v /usr/local/docker/mysql/conf:/etc/mysql \
 -v /usr/local/docker/mysql/logs:/var/log/mysql \
 -v /usr/local/docker/mysql/data:/var/lib/mysql \
 -e MYSQL_ROOT_PASSWORD=123456 \
@@ -53,7 +54,7 @@ docker run -p 3305:3306 --name mysql \
 
 # 配置好后就使用这个新建容器
 docker run -p 3305:3306 --name mysql \
--v /usr/local/docker/mysql/conf/my.cnf:/etc/mysql/my.cnf \
+-v /usr/local/docker/mysql/conf:/etc/mysql \
 -v /usr/local/docker/mysql/logs:/var/log/mysql \
 -v /usr/local/docker/mysql/data:/var/lib/mysql \
 -d mysql
@@ -69,6 +70,7 @@ select host,user,plugin from user;
 //若root加密方式为caching_sha2_password
 //修改为mysql_native_password
 ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
 //如果navicat 提示“1045 access denied for user 'root'@'localhost' ”，则执行：
 alter user 'root'@'localhost' identified by 'admin';
 //如果navicat 提示“1045 access denied for user 'root'@'%' ”，则执行：
@@ -89,5 +91,45 @@ flush privileges;
 ```sql
 # 修改密码
 ALTER user 'root' IDENTIFIED BY 'admin'; 
+```
+
+#### docker-compose.yml
+
+> 配置`运行tomcat`的docker-compose.yml 文件
+
+```yml
+version: "3"
+services:
+
+   tomcat:
+      restart: always
+      image: tomcat
+      container_name: mytomcat
+      ports:
+         - 8080:8080
+```
+
+> 在docker-compose.yml的文件夹下运行
+
+```sh
+# 运行docker容器
+docker-compose up
+# 关闭docker容器，关闭的同时会删除container
+docker-compose down
+```
+
+> 如果不在docker-compose.yml文件下运行
+
+```sh
+docker-compose -f [docker-compose.yml的路径]
+```
+
+> 其他的命令
+
+```sh
+# 守护态运行
+docker-compose up -d
+# 打印日志
+docker-compose logs mytomcat
 ```
 

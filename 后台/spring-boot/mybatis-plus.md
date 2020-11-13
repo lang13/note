@@ -60,7 +60,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     #使用mysql-connector/6.以上的版本需要添加serverTimezone=UTC
-    url: jdbc:mysql://127.0.0.1:3306/learn?useUnicode=true&characterEncoding=utf-8&serverTimezone=UTC
+    url: jdbc:mysql://127.0.0.1:3306/learn?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai	# serverTimezone=Asia/Shanghai 解决 mybatis dateTime属性 相差8小时问题 
     username: root
     password: 13068298041tzc
 ```
@@ -324,6 +324,10 @@ void testLogic(){
 
 **逻辑删除并不会修改`Version`字段的值**
 
+##### 5.自动填充
+
+
+
 ****
 #### 5.代码生成器
 
@@ -433,6 +437,10 @@ mybatis-plus:
 ```
 ***
 #### 7.乐观锁
+
+**乐观锁**
+
+> 
 
 添加**config**配置
 
