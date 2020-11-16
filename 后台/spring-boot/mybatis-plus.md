@@ -288,6 +288,59 @@ void testPaginationInnerInterceptor(){
 }
 ```
 
+###### 自定义分页查询
+
+> mapper.interface文件
+
+```java
+//自定义mapper名
+List<Blog> listAllWithTypeLikeTitle(Page<Blog> blogPage, String title);
+```
+
+> mapper.xml文件
+
+```xml
+<select id="listAllWithTypeLikeTitle" resultType="com.learn.blog.pojo.Blog">
+        SELECT
+          t0.id,
+          t0.`title`,
+          t0.`description`,
+          t0.`content`,
+          t0.`first_picture`,
+          t0.`flag`,
+          t0.`type_id`,
+          t1.name `type`,
+          t0.`views`,
+          t0.`published`,
+          t0.`create_time`,
+          t0.`update_time`
+        FROM
+          blog t0
+          LEFT JOIN `type` t1
+            ON t0.`type_id` = t1.`id`  
+        WHERE deleted = 0 and title like concat('%',#{title},'%') <!--like 拼接 % 的方法-->
+</select>
+```
+
+> service.interface文件
+
+```java
+Page<Blog> listAllWithTypeLikeTitle(Page<Blog> blogPage, String title);
+```
+
+> serviceImpl.java文件
+
+```java
+@Override
+public Page<Blog> listAllWithTypeLikeTitle(Page<Blog> blogPage, String title) {
+    return blogPage.setRecords(this.baseMapper.listAllWithTypeLikeTitle(blogPage, title));
+}
+```
+
+
+
+
+
 ##### 4.逻辑删除
 
 ###### 1.配置文件
