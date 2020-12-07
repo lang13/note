@@ -73,3 +73,44 @@ LEFT JOIN Student S2 ON(S2.Sage<=19)
 WHERE S1.Sdept='CS'
 ```
 
+#####　修改自增ｉｄ的初始值
+
+```sql
+ALTER TABLE course AUTO_INCREMENT 200;
+```
+
+#### check (检查insert的值)
+
+```sql
+#可以在新建表的时候，在字段后面添加
+creste table test(
+	tzc_Sage INT CHECK(tzc_Sage < 35 and tzc_Sage > 15) DEFAULT NULL,
+)
+#也可自在新建表后添加
+ALTER TABLE `tzc_student2` ADD CONSTRAINT ageRange CHECK(tzc_Sage < 35 AND tzc_Sage > 15)
+```
+
+#### INTERVAL(分段)
+
+```sql
+# 例子1
+SELECT
+  ELT (
+    INTERVAL (`totalResult`, 0, 60, 70, 80, 90, 100),
+    '不及格',
+    '60~70',
+    '70~80',
+    '80~90',
+    '>=90'
+  ) report,
+  COUNT(studentId) `sum`
+FROM
+  sc
+WHERE courseId = 204
+GROUP BY report
+ORDER BY report
+```
+
+#### 行列转换
+
+https://www.cnblogs.com/xiaoxi/p/7151433.html

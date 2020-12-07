@@ -51,3 +51,9 @@
 <a th:if="${cmenu.text!= '角色管理' && cmenu.text!= '系统菜单'}">系统管理</a>
 ```
 
+##### checked
+
+```html
+<input type="radio" th:checked="true">
+```
+

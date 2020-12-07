@@ -21,6 +21,13 @@ IOC容器：一个Map，有key和value
 #### 初始化spring中的Bean
 
 ```java
-new AnnotationConfigApplicationContext("com.learn.bean")
+ApplicationContext context = new AnnotationConfigApplicationContext("com.learn.bean")   //参数是要扫描的包路径
+//获取Bean对象
+User user = context.getBean("User", User.class);
 ```
 
+spring容器中对象实例的别名
+
+> 1. 默认为类的首字母小写
+> 2. 定义注解时指定的别名称
+> 3. 通过@Bean手动注册的对象的别名称为定义方法的名称
