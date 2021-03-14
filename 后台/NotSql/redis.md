@@ -57,6 +57,12 @@ type [key的值]
 
 # 删除某个key
 del [key的值]
+
+# 向key追加内容；如果key不存在就相当于新建key
+append [key的值] [需要追加的内容]
+
+# 获取key的长度
+strlen [key的值]
 ```
 
 ### 五大数据类型
