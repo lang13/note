@@ -20,6 +20,8 @@ services:
         /bin/bash -c "redis-server /usr/local/etc/redis/redis.conf" # 指定运行时使用的配置文件
  
 # 需要去redis下载配置文件redis.conf然后上传
+# 将 daemonize 属性改为yes 如果是使用docker安装，则无视这一部分
+daemonize yes
 ```
 
 ### 常用指令
@@ -238,3 +240,181 @@ sunion [key1] [key2]
 #### Hash
 
 >key-map（<key,value>）
+>
+>- 用户信息
+>- 经常变动的信息
+>- 比String类型更适合存储对象
+
+```bash
+# 设置Hash
+hset [key] [field] [value] # 如果filed存在，则会进行覆盖但返回值是0
+
+# 取出Hash
+hget [key] [field] [value]
+
+# 批量设置Hash
+hmset [key] [field] [value]... # 如果filed存在，则会进行覆盖
+
+# 批量获取Hash
+hmget [key] [field...]
+
+# 获取所有Hash
+hgetall [key] # field 和 value一起获取
+
+# 删除N个Hash
+hdel [key] [field...]
+
+# 获取Hash的长度（一共有多少个键值对）
+hlen [key]
+
+# 判断某个field是否存在
+hexists [key] [field]
+
+# 获取所有的key
+hkeys [key]
+
+# 获取所有的value
+hvals [key]
+
+# 指定某个field的值增加
+hincrby [key] [field] [increment] # 似乎某有hdecrby
+
+# 如果不存在则设置，如果存在则跳过
+hsetnx [key] [field] [value]
+```
+
+#### Zset
+
+> **有序集合**，新增了个version字段用于判断优先级。
+
+```bash
+# 新增Zset
+zadd [key] [优先级] [value]... # 如果优先级一样，也不会覆盖；不允许优先级不相同value相同的情况出现；可以同时添加多个值
+
+# 批量获取Zset
+zrange [key] [start] [stop] # 本身就是从小到大排序获取
+
+# 批量获取Zset2
+zrevrange [key] [start] [stop] # 从大到小排序获取
+### 对数量进行限定
+
+# 从小到大排序获取
+zrangebyscore [key] [min] [max] [withscores] # 相对比zrange，这个可以带上scores
+
+# 从大到小排序获取
+zrevrangebyscore [key] [max] [min] [withscores] # 相对比zrange，这个可以带上scores
+### 对值的范围进行限定
+
+# 删除N个value
+zrem [key] [value...]
+
+# 获取Zset中集合的个数
+zcard [key]
+
+# 获取区间元素的个数
+zcount [key] [min] [max]
+```
+
+### 三种特殊类型
+
+#### geospatial（地理空间）
+
+> **可以使用Zset指令操作geo**
+>
+> 地理位置，经纬度
+
+```bash
+# 规则；两级是无法添加；一般会下载城市数据然后使用Java程序一次性导入
+# 添加成员
+geoadd [key] [经度] [维度] [member（城市名|人名）]...
+
+# 获取成员的经纬度
+geopop [key] [member...]
+
+# 返回两个位置的距离
+# 指定单位的参数 unit 必须是以下单位的其中一个：
+m 表示单位为米。
+km 表示单位为千米。
+mi 表示单位为英里。
+ft 表示单位为英尺。
+geodist [key] [member1] [member2]
+
+# 根据经纬度和半径查询范围内的成员个数
+georadius [key] [经度] [维度] [半径] [单位]  # 返回的是member的值
+# withdist：附带距离   withcoord：附带经纬度 count [value]：限定返回的个数
+
+# 根据member和半径查询范围内成员的个数，返回值包括圆心
+georadiusbymember [key] [member] [半径] # 后续参数和georadius一样
+```
+
+#### hyperloglogs
+
+> 占用的内存是固定的
+>
+> 用于统计基数，但有0.81%的错误率；用于统计UV
+
+```bash
+# 添加value
+pfadd [key] [value...] # 不能添加重复的，如果添加多个的时候有一个是重复的，那么重复的不会添加不重复的会添加
+
+# 统计N个集合的并集的基数
+pfcount [key...]
+
+# 统计N个key的并集的技术
+pfmerge [生成的key] [需要合并的素材] [需要合并的素材]
+```
+
+#### Bitmap
+
+> 位存储（0,1存储），操作二进制位进行记录
+
+```bash
+# 设置bitmaps
+setbit [key] [index] [0|1]
+
+# 获取某一个index的bit
+getbit [key] [index]
+
+# 统计bit为1的个数
+bitcount [key] [start end]
+```
+
+### 事务
+
+>- redis的单条命名是保证原子性的，但redis的事务是**不保证原子性的**
+>- redis事务**没有隔离性**
+>- redis事务
+>  - 开启事务（multi）
+>  - 命令入队
+>  - 执行事务（exec）
+
+```bash
+127.0.0.1:6379> multi # 开启事务
+OK
+# 事务入队
+127.0.0.1:6379(TX)> set key1 value1
+QUEUED
+127.0.0.1:6379(TX)> set key2 value2
+QUEUED
+127.0.0.1:6379(TX)> get key1
+QUEUED
+127.0.0.1:6379(TX)> set key3 value3
+QUEUED
+127.0.0.1:6379(TX)> EXEC # 执行事务
+1) OK
+2) OK
+3) "value1"
+4) OK
+
+127.0.0.1:6379> multi # 开启事务
+OK
+# 事务入队
+127.0.0.1:6379(TX)> set key4 value4
+QUEUED
+127.0.0.1:6379(TX)> DISCARD # 结束事务，整个事务的内容都没有执行
+OK
+
+# 编译型异常事务不会执行
+# 运行时异常，除了有异常的语句其他都会执行
+```
+
