@@ -516,7 +516,7 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
-}
+} 
 ```
 
 
