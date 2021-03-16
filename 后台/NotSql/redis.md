@@ -60,6 +60,9 @@ type [key的值]
 # 删除某个key
 del [key的值]
 
+# 从新命名某个key
+rename [oldKey] [newKey]
+
 # 向key追加内容；如果key不存在就相当于新建key
 append [key的值] [需要追加的内容]
 
@@ -417,4 +420,104 @@ OK
 # 编译型异常事务不会执行
 # 运行时异常，除了有异常的语句其他都会执行
 ```
+
+### 乐观锁
+
+> 使用 **watch**字段即可
+
+### jedis
+
+> java官方推荐redis中间件
+
+**导入依赖**
+
+```xml
+<!--jedis-->
+<dependency>
+    <groupId>redis.clients</groupId>
+    <artifactId>jedis</artifactId>
+    <version>3.2.0</version>
+</dependency>
+<!--fastjson-->
+<dependency>
+    <groupId>com.alibaba</groupId>
+    <artifactId>fastjson</artifactId>
+    <version>1.2.75</version>
+</dependency>
+```
+
+**测试连接**
+
+```java
+//1. 实例化 jedis 对象
+Jedis jedis = new Jedis("127.0.0.1", 6379);
+// 有关 redis 的所有操作指令都在jedis对象里面
+
+//测试ping指令
+System.out.println(jedis.ping());  //返回pong
+```
+
+### Spring Boot 整合
+
+- 源码
+
+```java
+@Bean
+@ConditionalOnMissingBean(name = "redisTemplate") //我们可以自己定义一个RedisTemplate来替换默认的!
+@ConditionalOnSingleCandidate(RedisConnectionFactory.class)
+public RedisTemplate<Object, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    //默认的 RedisTemplate没有过多的配置，redis 对象都是需要序列化的
+    //两个泛型都是 Object，我们需要强制替换为<String, Object>
+    RedisTemplate<Object, Object> template = new RedisTemplate<>();
+    template.setConnectionFactory(redisConnectionFactory);
+    return template;
+}
+
+@Bean
+@ConditionalOnMissingBean //由于String类型是redis最常使用的类型，所以单独设置一个StringRedisTemplate
+@ConditionalOnSingleCandidate(RedisConnectionFactory.class)
+public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    StringRedisTemplate template = new StringRedisTemplate();
+    template.setConnectionFactory(redisConnectionFactory);
+    return template;
+}
+```
+
+- 配置**RedisConfig**
+
+```java
+@Configuration
+public class RedisConfig {
+    // 编写自己的 redisTemplate
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        // 创建RedisTemplate<String, Object>对象
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        // 配置连接工厂
+        template.setConnectionFactory(redisConnectionFactory);
+        // 定义Jackson2JsonRedisSerializer序列化对象
+        Jackson2JsonRedisSerializer<Object> jacksonSeial = new Jackson2JsonRedisSerializer<>(Object.class);
+        ObjectMapper om = new ObjectMapper();
+        // 指定要序列化的域，field,get和set,以及修饰符范围，ANY是都有包括private和public
+        om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+        // 指定序列化输入的类型，类必须是非final修饰的，final修饰的类，比如String,Integer等会报异常
+        om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance ,
+                ObjectMapper.DefaultTyping.NON_FINAL, JsonTypeInfo.As.PROPERTY);
+        jacksonSeial.setObjectMapper(om);
+        StringRedisSerializer stringSerial = new StringRedisSerializer();
+        // redis key 序列化方式使用stringSerial
+        template.setKeySerializer(stringSerial);
+        // redis value 序列化方式使用jackson
+        template.setValueSerializer(jacksonSeial);
+        // redis hash key 序列化方式使用stringSerial
+        template.setHashKeySerializer(stringSerial);
+        // redis hash value 序列化方式使用jackson
+        template.setHashValueSerializer(jacksonSeial);
+        template.afterPropertiesSet();
+        return template;
+    }
+}
+```
+
+
 
