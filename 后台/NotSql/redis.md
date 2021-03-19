@@ -694,4 +694,5 @@ repl_backlog_histlen:658
 >
 > `原理`：对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。
 
-![img](D:\environment\note\static\image\v2-0e5176af52f640370a5dbcad82b008bc_720w.jpg)
+![img](../../static/image/v2-0e5176af52f640370a5dbcad82b008bc_720w.jpg)
+
