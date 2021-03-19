@@ -521,3 +521,177 @@ public class RedisConfig {
 
 
 
+### 发布订阅
+
+```bash
+# 订阅一个频道
+SUBSCRIBE [频道...]
+
+# 发送一个订阅
+publish [频道] [消息] # 发布者法布施消息到一个频道
+```
+
+### 主从复制
+
+> - 主机以写为主，从机以读为主
+
+#### 配置集群
+
+- 使用命名配置集群
+
+```bash
+# 配置集群
+
+version: '3'
+  
+services:
+  master:
+    image: redis
+    container_name: redis-master
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - /usr/local/docker/redis/master/r1/data:/data
+      - /usr/local/docker/redis/master/r1/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --port 6379 --requirepass admintzc
+
+  slave1:
+    image: redis
+    container_name: redis-slave-1
+    restart: always
+    ports:
+      - 6380:6379
+    volumes:
+     - /usr/local/docker/redis/master/r2/data:/data
+     - /usr/local/docker/redis/master/r2/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --slaveof 108.160.139.106 6379 --port 6380 --requirepass admintzc --masterauth admintzc
+
+  slave2:
+    image: redis
+    container_name: redis-slave-2
+    restart: always
+    ports:
+      - 6381:6379
+    volumes:
+     - /usr/local/docker/redis/master/r3/data:/data
+     - /usr/local/docker/redis/master/r3/redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf --slaveof 108.160.139.106 6379 --port 6381 --requirepass admintzc --masterauth admintzc
+
+```
+
+- 使用配置文件配置集群
+
+```bash
+################################# REPLICATION #################################
+
+# Master-Replica replication. Use replicaof to make a Redis instance a copy of
+# another Redis server. A few things to understand ASAP about Redis replication.
+#
+#   +------------------+      +---------------+
+#   |      Master      | ---> |    Replica    |
+#   | (receive writes) |      |  (exact copy) |
+#   +------------------+      +---------------+
+#
+# 1) Redis replication is asynchronous, but you can configure a master to
+#    stop accepting writes if it appears to be not connected with at least
+#    a given number of replicas.
+# 2) Redis replicas are able to perform a partial resynchronization with the
+#    master if the replication link is lost for a relatively small amount of
+#    time. You may want to configure the replication backlog size (see the next
+#    sections of this file) with a sensible value depending on your needs.
+# 3) Replication is automatic and does not need user intervention. After a
+#    network partition replicas automatically try to reconnect to masters
+#    and resynchronize with them.
+#
+# replicaof <masterip> <masterport>
+replicaof ip 端口
+# If the master is password protected (using the "requirepass" configuration
+# directive below) it is possible to tell the replica to authenticate before
+# starting the replication synchronization process, otherwise the master will
+# refuse the replica request.
+#
+# masterauth <master-password>
+masterauth 主机密码
+```
+
+- 运行过后的配置信息
+
+```bash
+# 查看配置信息的指令
+info replication
+# redis-master 的配置信息
+127.0.0.1:6379> info replication
+# Replication
+role:master
+connected_slaves:2
+slave0:ip=192.168.64.1,port=6381,state=online,offset=616,lag=0
+slave1:ip=192.168.64.1,port=6380,state=online,offset=616,lag=1
+master_failover_state:no-failover
+master_replid:2bd311c8e1484286afb1c44a5516f3c0360cf16c
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:616
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:616
+
+
+# redis-slave-1 的配置信息
+127.0.0.1:6380> info replication
+# Replication
+role:slave
+master_host:108.160.139.106 # 主机地址
+master_port:6379 # 主机端口
+master_link_status:up # 连接成功
+master_last_io_seconds_ago:1
+master_sync_in_progress:0
+slave_repl_offset:658
+slave_priority:100
+slave_read_only:1
+connected_slaves:0
+master_failover_state:no-failover
+master_replid:2bd311c8e1484286afb1c44a5516f3c0360cf16c
+master_replid2:0000000000000000000000000000000000000000
+master_repl_offset:658
+second_repl_offset:-1
+repl_backlog_active:1
+repl_backlog_size:1048576
+repl_backlog_first_byte_offset:1
+repl_backlog_histlen:658
+```
+
+* 细节
+
+> - 主机可以写，从机不能写只能读
+> - 如果主机断开，从机依旧连接在主机上，且没有写操作。
+> - 复制原理
+>   - Slave启动成功连接到maser后悔发送一个sync命令。Master接到命令，启动后台的存盘进程，同时手机所有接收到的用于修改数据集命令，在后台进程执行完毕后，master将传送整个数据文件到slave，并完成一次完全同步。
+>     - 全量复制：slave服务子啊接收到数据库文件数据后，将其存盘并加载到内存中
+>     - 增量复制：Master继续将新的所有收集到的修改命令以此传给slave，完成同步
+>     - 但是只要是从新连接master，一次完全同步（全量复制）将被自动执行
+
+#### 哨兵模式
+
+> 哨兵模式（sentinel）
+
+[博客连接](https://blog.csdn.net/weixin_41622183/article/details/86600515)
+
+### Redis缓存穿透和雪崩
+
+- 概念
+
+> `缓存穿透`是指查询一个`数据库一定不存在的数据`。正常的使用缓存流程大致是，数据查询先进行缓存查询，如果key不存在或者key已经过期，再对数据库进行查询，并把查询到的对象，放进缓存。如果数据库查询对象为空，则不放进缓存。
+>
+> 这里需要注意`缓存击穿`的区别，缓存击穿，缓存击穿是指`缓存中没有但数据库中有的数据`，并且`某一个key非常热点`，在不停的扛着大并发，大并发集中对这一个点进行访问，当这个key在失效的瞬间（一般是缓存时间到期），持续的大并发就穿破缓存，直接请求数据库，就像在一个屏障上凿开了一个洞。
+
+- 解决方案
+
+**布隆过滤器**
+
+> `布隆过滤器`是一个bit向量或者bit，如果我们要映射一个值到布隆过滤器中，我们使用多个不同的哈希函数生成多个哈希值，并将每个生成的哈希值指向的bit位设置为1，如下baidu一词设置了三个位置为1。
+>
+> `原理`：对一个key进行k个hash算法获取k个值，在比特数组中将这k个值散列后设定为1，然后查的时候如果特定的这几个位置都为1，那么布隆过滤器判断该key存在。
+
+![img](D:\environment\note\static\image\v2-0e5176af52f640370a5dbcad82b008bc_720w.jpg)
