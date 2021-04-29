@@ -64,3 +64,225 @@ destroyed
 * v-bind和v-model很像，但v-model只在表单元素内使用，在表单元素外使用无效，v-model是双向绑定的；v-bind可以绑定参数或者样式，但不是双向绑定。
 在自定义组件中可用于绑定参数
 
+# v-model 和 v-bind 的区别
+
+# Prop
+
+> 在自定义组件里面自定义一个 attribute，用于父组件向子组件传递参数
+
+```js
+// 自定义一个主键
+Vue.component('blog-post', {
+  props: ['title'],	// 在这个组件里面自定义一个名为 title 的属性
+  template: '<h3>{{ title }}</h3>'
+})
+
+// 这是设置了 title 的值
+<blog-post title="My journey with Vue"></blog-post>
+<blog-post title="Blogging with Vue"></blog-post>
+<blog-post title="Why Vue is so fun"></blog-post>
+```
+
+# 表单
+
+> - `label-position` 控制 tag 的位置，此便签必须和 `label-width` 一起使用`label-width`支持 auto 属性
+> - `el-form-item` 中的 `prop` 属性的内容是进行表单验证的字段
+> - `el-form`（最外面那层）绑定的`model`是一个表单对象，`el-input` 里面才绑定该对象的具体值
+> - `prefix-icon`用于设置表框里面的icon
+> - `el-button`中的`type`用于设置按钮的样式
+> - `el-form`中的`rules`用于设置表单验证规则
+
+```vue
+<template>
+  <div class="main-container">
+    <el-form :model="resultForm" :label-position="top" :rules="rules" label-width="auto" class="my-form">
+      <el-form-item label="账号" prop="name">
+        <el-input type="text" v-model="resultForm.name" prefix-icon="el-icon-user" placeholder="请输入用户名..." autocomplete="off"></el-input>
+      </el-form-item>
+
+      <el-form-item label="密码" prop="password">
+        <el-input type="password" v-model="resultForm.password" prefix-icon="el-icon-lock" placeholder="请输入密码..." autocomplete="off"></el-input>
+      </el-form-item>
+
+      <el-form-item>
+        <el-button type="primary">登录</el-button>
+        <el-button style="float: right">重置</el-button>
+      </el-form-item>
+    </el-form>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "login",
+  data(){
+    return {
+      resultForm:{
+        name: '',
+        password: ''
+      },
+      rules:{
+        name:[ //是一个数组
+            //第一个规则
+          { //具体的规则是一个对象类型
+            required: true,
+            message: '请输入账户',
+            trigger: 'blur'
+          }
+        ],
+        password:[
+          {
+            require: true,
+            message: '请输入密码',
+            trigger: 'blur'
+          }
+        ]
+      }
+    }
+  }
+}
+</script>
+
+<style scoped>
+.main-container{
+  margin: auto;
+}
+
+.my-form{
+  max-width: 400px;
+  margin: auto;
+  padding-bottom: 15em;
+  padding-top: 5.5em;
+}
+</style>
+```
+
+## 自定义表单验证规则
+
+```vue
+<script>
+export default {
+  name: 'test',
+  data() {
+    var checkAge = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('年龄不能为空'));
+      }
+      setTimeout(() => {
+        if (!Number.isInteger(value)) {
+          callback(new Error('请输入数字值'));
+        } else {
+          if (value < 18) {
+            callback(new Error('必须年满18岁'));
+          } else {
+            callback();
+          }
+        }
+      }, 1000);
+    };
+    var validatePass = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请输入密码'));
+      } else {
+        if (this.ruleForm.checkPass !== '') {
+          this.$refs.ruleForm.validateField('checkPass');
+        }
+        callback();
+      }
+    };
+    var validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'));
+      } else if (value !== this.ruleForm.pass) {
+        callback(new Error('两次输入密码不一致!'));
+      } else {
+        callback();
+      }
+    };
+    return {
+      ruleForm: {
+        pass: '',
+        checkPass: '',
+        age: ''
+      },
+      rules: {
+        pass: [
+          {validator: validatePass, trigger: 'blur'}
+        ],
+        checkPass: [
+          {validator: validatePass2, trigger: 'blur'}
+        ],
+        age: [
+          {validator: checkAge, trigger: 'blur'}
+        ]
+      }
+    };
+  },
+  methods: {
+	//略
+  }
+}
+</script>
+```
+
+# 选择器
+
+> - `label` 是选择器要显示的内容
+> - `value`是选择的要提交的属性
+> - 一般情况`id`和`value`是相同的
+> - 如果要想传递对象，那么需要设置`value-key`属性。对应的是对象的唯一字段（id）
+
+
+```vue
+<el-col :span="6" style="margin-left: 0.5em;margin-right: 2.5em">
+    <el-select name="type" v-model="type" filterable clearable>
+        <el-option
+                   v-for="type in types"
+                   :key="type.id"
+                   :label="type.value"
+                   :value="type.id"
+                   ></el-option>
+    </el-select>
+</el-col>
+```
+
+# 表格
+
+> - 表头错位解决方式
+
+```css
+/* 在 app.vue 或者 index.vue 中导入 */
+body .el-table th.gutter{
+  display: table-cell!important;
+}
+```
+
+> - 对表格中的数据进行操作
+
+```vue
+<!-- 需要引入一个 Template模板插槽-->
+<!-- scope.row便是该行的对象-->
+<template slot-scope="scope">
+	<el-popover trigger="hover" placement="top">
+        <p>姓名: {{ scope.row.name }}</p>
+        <p>住址: {{ scope.row.address }}</p>
+        <div slot="reference" class="name-wrapper">
+            <el-tag size="medium">{{ scope.row.name }}</el-tag>
+        </div>
+    </el-popover>
+</template>
+
+<!-- scope.$index是表格中的行数-->
+<el-table-column label="操作">
+    <template slot-scope="scope">
+		<el-button
+           size="mini"
+           @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+		<el-button
+           size="mini"
+           type="danger"
+           @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+    </template>
+</el-table-column>
+```
+
