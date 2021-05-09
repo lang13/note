@@ -286,3 +286,113 @@ body .el-table th.gutter{
 </el-table-column>
 ```
 
+# axios
+
+1. 安装axios
+
+```bash
+npm install vue-axios --save
+npm install qs
+```
+
+2. 全局注册（在main.js中注册）
+
+```js
+import Vue from 'vue'
+import axios from 'axios'
+Vue.prototype.$axios = axios    //全局注册，使用方法为:this.$axios
+Vue.prototype.$qs = qs   //全局注册qs, 用于格式化数据
+```
+
+3. 使用
+
+```js
+submit(){
+    this.$axios.post(this.$store.state.httpUrl + ":9000/generator",this.$qs.stringify(this.form))
+        .then(function (response) {
+        console.log(response)
+    })
+        .catch(function (error) {
+        alert("发生错误")
+        console.log(error)
+    })
+}
+```
+
+# 路由传参
+
+> 通过 props 方式进行路由传参
+
+```js
+const User = {
+  props: ['id'],  /* props 声明一个属性用于接收参数, 传过来的参数直接赋值给 id 可用过{{id}} 或者 {{this.id}} 直接调					用*/
+  template: '<div>User {{ id }}</div>'
+}
+const router = new VueRouter({
+  routes: [
+    { path: '/user/:id', component: User, props: true },  /* props属性设置为true */
+
+    // 对于包含命名视图的路由，你必须分别为每个命名视图添加 `props` 选项：
+    {
+      path: '/user/:id',
+      components: { default: User, sidebar: Sidebar },
+      props: { default: true, sidebar: false }
+    }
+  ]
+})
+```
+
+# 监听器
+
+## 简单监听功能
+
+```html
+<div id="demo">{{ fullName }}</div>
+```
+
+```js
+var vm = new Vue({
+  el: '#demo',
+  data: {
+    firstName: 'Foo',
+    lastName: 'Bar',
+    fullName: 'Foo Bar'
+  },
+  watch: {
+    firstName: function (val) { // 只有一个参数的时候，接收的是newVal；如果是两个参数的时候 newVal, oldVal
+      this.fullName = val + ' ' + this.lastName
+    },
+    lastName: function (val) {
+      this.fullName = this.firstName + ' ' + val
+    }
+  }
+})
+```
+
+## 监听器里面需要执行其他方法以及设置监听器的配置
+
+```js
+ watch: {
+    title:{
+      handler(){
+        this.getData()  // 需要执行的方法
+      },
+      immediate: true   // 设置 "首次调用也执行" 的属性
+    }
+  }
+```
+
+## 监听路由变化
+
+```js
+watch: {
+    $route: {  // 本对象的 路由对象
+      handler(newRoute) { // 新的路由对象 执行器里面可以接受对象
+        this.activeIndex = newRoute.path;
+      },
+      //首次调用也监视 Route
+      immediate: true
+    }
+  }
+```
+
