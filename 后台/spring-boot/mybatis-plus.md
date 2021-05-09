@@ -288,7 +288,7 @@ void testPaginationInnerInterceptor(){
 }
 ```
 
-###### 自定义分页查询
+###### 3. 自定义分页查询
 
 > mapper.interface文件
 
@@ -336,10 +336,6 @@ public Page<Blog> listAllWithTypeLikeTitle(Page<Blog> blogPage, String title) {
     return blogPage.setRecords(this.baseMapper.listAllWithTypeLikeTitle(blogPage, title));
 }
 ```
-
-
-
-
 
 ##### 4.逻辑删除
 
