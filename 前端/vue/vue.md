@@ -64,9 +64,9 @@ destroyed
 * v-bind和v-model很像，但v-model只在表单元素内使用，在表单元素外使用无效，v-model是双向绑定的；v-bind可以绑定参数或者样式，但不是双向绑定。
 在自定义组件中可用于绑定参数
 
-# v-model 和 v-bind 的区别
+# 4.v-model 和 v-bind 的区别
 
-# Prop
+# 5.Prop
 
 > 在自定义组件里面自定义一个 attribute，用于父组件向子组件传递参数
 
@@ -83,7 +83,7 @@ Vue.component('blog-post', {
 <blog-post title="Why Vue is so fun"></blog-post>
 ```
 
-# 表单
+# 6.表单
 
 > - `label-position` 控制 tag 的位置，此便签必须和 `label-width` 一起使用`label-width`支持 auto 属性
 > - `el-form-item` 中的 `prop` 属性的内容是进行表单验证的字段
@@ -225,7 +225,7 @@ export default {
 </script>
 ```
 
-# 选择器
+# 7. 选择器
 
 > - `label` 是选择器要显示的内容
 > - `value`是选择的要提交的属性
@@ -246,7 +246,7 @@ export default {
 </el-col>
 ```
 
-# 表格
+# 8. 表格
 
 > - 表头错位解决方式
 
@@ -286,7 +286,7 @@ body .el-table th.gutter{
 </el-table-column>
 ```
 
-# axios
+# 9. axios
 
 1. 安装axios
 
@@ -319,7 +319,7 @@ submit(){
 }
 ```
 
-# 路由传参
+# 10. 路由传参
 
 > 通过 props 方式进行路由传参
 
@@ -342,9 +342,15 @@ const router = new VueRouter({
 })
 ```
 
-# 监听器
+> router-link to 动态赋值
 
-## 简单监听功能
+```html
+<router-link :to="{path: '/blog/' + blog.id}"> <!-- blog.id为一个值-->
+```
+
+# 11. 监听器
+
+## 1.简单监听功能
 
 ```html
 <div id="demo">{{ fullName }}</div>
@@ -369,7 +375,7 @@ var vm = new Vue({
 })
 ```
 
-## 监听器里面需要执行其他方法以及设置监听器的配置
+## 2.监听器里面需要执行其他方法以及设置监听器的配置
 
 ```js
  watch: {
@@ -382,7 +388,7 @@ var vm = new Vue({
   }
 ```
 
-## 监听路由变化
+## 3.监听路由变化
 
 ```js
 watch: {
