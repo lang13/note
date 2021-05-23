@@ -174,7 +174,7 @@ lrange [key] [start] [stop] # 先进后出（栈）
 lpop [key] [count]
 
 # 尾出栈
-lpop [key] [count]
+rpop [key] [count]
 
 # 获取某一个值 
 lindex [key] [index] # index -1 是最后的一个元素
