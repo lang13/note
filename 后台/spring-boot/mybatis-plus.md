@@ -520,7 +520,7 @@ private Integer version;
 
 ****
 
-#### xml中的特殊符号
+#### 8.xml中的特殊符号
 
 ##### like中的两个 “%”
 
@@ -545,5 +545,51 @@ create_date_time &gt;= #{startTime} and  create_date_time &lt;= #{endTime}
 <![CDATA[ <= ]]>
 例如：sql如下：
 create_date_time <![CDATA[ >= ]]> #{startTime} and  create_date_time <![CDATA[ <= ]]> #{endTime}
+```
+
+##### 拼接 update 语句
+
+```xml
+<update id="updateUser" parameterType="com.spring.handlers.model.User">
+    UPDATE `user` 
+    <trim prefix="set" suffixOverrides=",">
+        <if test="departmentId != null and departmentId != ''">
+            department_id = #{departmentId} ,
+        </if>
+        <if test="userName != null and userName != ''">
+            username='${userName}',    
+        </if>
+        <if test="password != null and password != ''">
+            password='${password}',    
+        </if>
+    </trim>
+    WHERE id = 1;
+</update>
+```
+
+trim标签的属性：
+
+> prefix ：前缀，在拼接语句前面加上的字段；
+> suffix：后缀，在拼接语句后加上的字段；
+> prefixOverrides ：前缀忽略，可以把包含内容的首部某些内容覆盖，即忽略；
+> suffixOverrides：后缀忽略，将内容最后的内容忽略。
+
+```xml
+<update id="updateUserTwo" parameterType="com.spring.handlers.model.User">
+    UPDATE `user` 
+    <set>
+        <if test="departmentId != null and departmentId != ''">
+            department_id = #{departmentId} ,
+        </if>
+        <if test="userName != null and userName != ''">
+            username='${userName}',    
+        </if>
+        <if test="password != null and password != ''">
+            password='${password}',    
+        </if>
+    </set>
+
+    WHERE id = #{id};
+</update>
 ```
 
