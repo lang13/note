@@ -78,6 +78,8 @@ export default new Vuex.Store({
 > >
 > > actions：用于异步执行mutations中的方法
 
+user.js
+
 ```js
 const user = {
   //定义一个类似于数据库的常量
@@ -113,6 +115,7 @@ export default user;
 #### 6.读写数据
 
 ```js
+# 如果读取不到, 则在 state 后方加入 js 的名字
 读取数据：{{ $store.getters.getUser.username }} {{ this.$store.state.user }}
 写入数据：
 //dispatch调用的是actions里面的方法
