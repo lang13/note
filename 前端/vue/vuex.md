@@ -123,6 +123,8 @@ this.$store.dispatch("asyncUpdateUser", {
 	username: this.form.username,
     token: "this is token"
 })      
+//同步写入数据
+this.$store.commit('updateUser', '用户名')
 ```
 
 #### 7.什么时候使用Vuex
