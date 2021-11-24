@@ -222,3 +222,11 @@ app.controller('myCtrl', function($scope) {
 </html>
 ```
 
+##### ng-style
+
+三元表达式
+
+```html
+<td ng-style="{'background-color':(item.isRepeat === 1) ? '#FFD21D' : ''}"></td>
+```
+
