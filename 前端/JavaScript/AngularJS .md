@@ -116,6 +116,10 @@
 </script>
 ```
 
+##### ng-repeat
+
+- 遍历的时候要加上`track by $index`防止数组出现重复数据时报错，`item in items track by $index`
+
 ##### select
 
 > `ng-potions`实现下拉列表，注意 `x for x in names`语句
