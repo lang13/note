@@ -29,3 +29,13 @@ connect by prior t.code = t.parentorgcode;
 ```
 
 ![image-20210616111115865](../../static/image/image-20210616111115865.png)
+
+#### 查询结果拼接字符串
+
+```sql
+select 
+	(ZLXG.SWJGJG || ' ' || ZLXG.ZG || ' 〔' || ZLXG.NH || '〕 ' || ZLXG.WH || ' 号') as wfsszjzm
+from HX_FZ.FZ_ZLXQGZXXB zlxg
+```
+
+![image-20211209153555516](../../static/image/image-20211209153555516.png)
