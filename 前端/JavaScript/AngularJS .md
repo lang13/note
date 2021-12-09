@@ -192,7 +192,7 @@ app.controller('myCtrl', function($scope) {
 > **key-value**格式有两种常用遍历模式：`使用select标签`
 >
 > - key for (key, value) in array：显示的是key，绑定的值是value；如果使用value for (key, value) in array那么显示的和绑定的都是value
-> - key as value for (key, value) in array：显示的是value，绑定的值是key
+> - key as value for (key, value) in array：显示的是value，绑定的值是key；（as**前面**的变成value**后面**的变成key）
 
 ```html
 <!DOCTYPE html>

@@ -5,6 +5,8 @@
 ```sh
 # 下载二进制文件
 # 自己修改版本号
+# 必须是 root 账户的情况下
+# 如果服务器下载速度过慢可以自行到对应地址下载docker-compose文件 docker-compose-linux-x86_64
 sudo curl -L https://github.com/docker/compose/releases/download/1.17.1/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
 
 # 将文件提权至可执行文件

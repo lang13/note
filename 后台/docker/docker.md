@@ -35,7 +35,7 @@ sudo apt-get -y install docker-ce
 ###### 检查是否安装成功
 
 ```shell
-docker version
+sudo docker version
 ```
 
 ##### 2.使用脚本自动安装
@@ -50,7 +50,7 @@ $ sudo sh get-docker.sh --mirror Aliyun
 
 #### 2.docker镜像加速
 
-登录阿里元账号，搜索`容器镜像服务`找到`镜像加速器`，然后复制里面的加速连接
+登录阿里云账号，搜索`容器镜像服务`找到`镜像加速器`，然后复制里面的加速连接
 
 > 下面的是淘宝账号的镜像链接
 
