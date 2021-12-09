@@ -114,3 +114,30 @@ ORDER BY report
 #### 行列转换
 
 https://www.cnblogs.com/xiaoxi/p/7151433.html
+
+#### 查询结果拼接字符串（concat）
+
+```sql
+SELECT 
+  CONCAT(username, ': ', age, '岁') info
+FROM
+  test.`user` 
+```
+
+![image-20211209152839663](../../static/image/image-20211209152839663.png)
+
+#### 查询结果合并（Group By）
+
+```sql
+SELECT 
+  age,
+  GROUP_CONCAT(
+    username # 需要合并的字段
+    ORDER BY id DESC SEPARATOR '、' # 分隔后的集合需要排序的字段以及分隔符
+  ) students 
+FROM
+  test.`user` 
+GROUP BY age 
+```
+
+![image-20211209153019379](../../static/image/image-20211209153019379.png)
