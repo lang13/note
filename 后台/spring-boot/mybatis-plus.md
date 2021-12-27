@@ -524,8 +524,9 @@ private Integer version;
 
 ##### like中的两个 “%”
 
-```xml
- WHERE deleted = 0 and title like concat('%',#{title},'%')
+```sql
+ # Oracle中的Concat()函数只能接收两个参数；MySQL的可以接受三个参数
+ WHERE deleted = 0 and title like concat(concat('%',#{title}),'%')
 ```
 
 ##### 大于号和小于号

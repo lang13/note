@@ -138,6 +138,9 @@ SELECT
 FROM
   test.`user` 
 GROUP BY age 
+
+# Oracle 则使用 listagg()within group () 
+listagg (s1.ywmc, '、') WITHIN GROUP (ORDER BY t1.zbdm) ywmc
 ```
 
 ![image-20211209153019379](../../static/image/image-20211209153019379.png)
