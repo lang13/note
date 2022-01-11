@@ -131,7 +131,7 @@ FROM
 ```sql
 SELECT 
   age,
-  GROUP_CONCAT(
+  GROUP_CONCAT( # 里面只有一个参数
     username # 需要合并的字段
     ORDER BY id DESC SEPARATOR '、' # 分隔后的集合需要排序的字段以及分隔符
   ) students 
@@ -144,3 +144,17 @@ listagg (s1.ywmc, '、') WITHIN GROUP (ORDER BY t1.zbdm) ywmc
 ```
 
 ![image-20211209153019379](../../static/image/image-20211209153019379.png)
+
+#### 一行转多行
+
+```sql
+/* Oracle */
+SELECT REGEXP_SUBSTR('fppzhdsq,fppzhdsqyhb'||',', '[^,]+', 1, LEVEL, 'i') as id FROM dual  
+CONNECT BY LEVEL <= LENGTH('fppzhdsq,fppzhdsqyhb') - LENGTH(REGEXP_REPLACE('fppzhdsq,fppzhdsqyhb', ',', '')) + 1;
+
+/* MySQL */
+SELECT SUBSTRING_INDEX(SUBSTRING_INDEX('fppzhdsq,fppzhdsqyhb',',',help_topic_id + 1),',' ,- 1) lzh FROM mysql.help_topic
+			WHERE help_topic_id &lt; (LENGTH('fppzhdsq,fppzhdsqyhb')) - LENGTH(REPLACE ('fppzhdsq,fppzhdsqyhb', ',', '')) + 1
+```
+
+ 

@@ -288,7 +288,7 @@ void testPaginationInnerInterceptor(){
 }
 ```
 
-###### 3. 自定义分页查询
+###### 3.自定义分页查询
 
 > mapper.interface文件
 
