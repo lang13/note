@@ -4,6 +4,10 @@
 
 ##### 1.apt-get安装
 
+###### wsl 2
+
+https://www.jianshu.com/p/a20c2d58eaac
+
 ###### 安装必要的系统工具
 
 ```shell
