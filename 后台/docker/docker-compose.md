@@ -71,7 +71,7 @@ use mysql;
 select host,user,plugin from user;
 //若root加密方式为caching_sha2_password
 //修改为mysql_native_password
-ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '13068298041tzc';
 ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY 'password';
 //如果navicat 提示“1045 access denied for user 'root'@'localhost' ”，则执行：
 alter user 'root'@'localhost' identified by 'admin';
@@ -83,7 +83,7 @@ flush privileges;
 
 ```sql
 # 修改远程登录root密码
-ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY 'admin';
+ALTER USER 'root'@'%' IDENTIFIED WITH mysql_native_password BY '13068298041tzc';
 # 修改登录权限
 grant all privileges on *.* to 'root'@'%' with grant option;
 # 刷新数据库
