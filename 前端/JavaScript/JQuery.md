@@ -82,6 +82,6 @@ addClass()、removeClass()、toggleClass()
 > 本质是操作html元素中的style属性
 
 ```js
-$("id").css("display", "inline-block");
+$("#id").css("display", "inline-block");
 ```
 

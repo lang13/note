@@ -4,10 +4,6 @@
 wget -N --no-check-certificate https://raw.githubusercontent.com/luvvien/ssr-install-shellscript/master/ssr.sh && chmod +x ssr.sh && bash ssr.sh
 ```
 
-
-
-
-
 V2ray配置信息：
  运行状态：已安装 V2ray正在运行, Nginx正在运行
 
