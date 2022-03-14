@@ -97,3 +97,57 @@ this.$router.push({
 })
 ```
 
+#### 6.传递参数
+
+1. restful风格
+
+```js
+// 路由规则里配置
+{
+    path: '/user/profile/:id',
+    name: 'UserProfile',
+    component: UserProfile,
+    props: true
+}
+
+// Vue组件配置
+export default {
+  name: "UserProfile",
+  props: ['id'], // 参数名称
+  method:{
+  	getData(){
+    	console.log(this.id); // 取值
+    }
+  }
+}
+```
+
+2. 带`?`的传参方式
+
+```js
+// 请求方式
+this.$router.push({
+    path: "/user/profile",
+    query: {
+        id: 1,
+        data: "data"
+    }
+})
+
+// 取值方式
+this.$route.query
+```
+
+3. 隐藏参数的方式
+
+```js
+// 请求方式
+this.$router.push({
+    name: "UserProfile",
+    params: {
+        id: 1,
+        data: "data"
+    }
+})
+```
+
