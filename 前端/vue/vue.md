@@ -402,3 +402,11 @@ watch: {
   }
 ```
 
+# 12. 过滤器搜索
+
+```js
+// filter: 标题搜索; slice: 分页
+:data="tableData.filter(data => !search || data.title.toLowerCase().includes(search.toLowerCase()))
+        .slice((currentPage-1)*pageSize,currentPage*pageSize)
+```
+

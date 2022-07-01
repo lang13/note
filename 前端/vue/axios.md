@@ -49,3 +49,22 @@ this.$axios.post('/user', {
   });
 ```
 
+- delete请求
+
+```js
+let param = {
+    commentId: commentId
+}
+this.$axios.delete("/comments", {
+    data: this.$qs.stringify(param)
+}).then((response) => {
+    if (response.data.code == 100) {
+        // 删除完后要从新获取评论列表
+        this.getData();
+        this.getComment(articleId);
+    } else {
+        alert("删除评论失败")
+    }
+})
+```
+
